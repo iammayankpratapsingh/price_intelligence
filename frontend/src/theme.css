@@ -1,0 +1,424 @@
+/* Design tokens carried over from the Parts Price Intelligence canvas. */
+:root {
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --surface2: #f1f2f5;
+  --border: #e3e5ea;
+  --text: #1a1d21;
+  --muted: #6b7280;
+  --faint: #a0a6b1;
+  --nav: #1b2430;
+  --nav2: #28323f;
+  --navtext: #b9c2cf;
+  --navmuted: #7c8797;
+  --red: #c4293a;
+  --red-bg: rgba(196, 41, 58, 0.1);
+  --green: #1f9d6c;
+  --green-bg: rgba(31, 157, 108, 0.12);
+  --blue: #4f63d2;
+  --blue-bg: rgba(79, 99, 210, 0.12);
+  --shadow: 0 1px 2px rgba(20, 24, 32, 0.04), 0 4px 12px rgba(20, 24, 32, 0.05);
+  --grid: rgba(27, 36, 48, 0.06);
+  --zebra: rgba(27, 36, 48, 0.02);
+  --mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  --bg: #14171c;
+  --surface: #1a1e24;
+  --surface2: #20252c;
+  --border: #2a3038;
+  --text: #e8e9eb;
+  --muted: #8b93a1;
+  --faint: #5e6673;
+  --nav: #111418;
+  --nav2: #1e242c;
+  --navtext: #b9c2cf;
+  --navmuted: #6e7887;
+  --red: #e4485a;
+  --red-bg: rgba(228, 72, 90, 0.14);
+  --green: #34b482;
+  --green-bg: rgba(52, 180, 130, 0.14);
+  --blue: #7b8ce8;
+  --blue-bg: rgba(123, 140, 232, 0.14);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 14px rgba(0, 0, 0, 0.25);
+  --grid: rgba(232, 233, 235, 0.06);
+  --zebra: rgba(232, 233, 235, 0.025);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root { margin: 0; height: 100%; }
+
+body {
+  font-family: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+a { color: var(--red); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+button, input { font: inherit; }
+
+.mono { font-family: var(--mono); }
+.num { font-variant-numeric: tabular-nums; }
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes floatY {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes drift {
+  from { transform: translateX(-8%); }
+  to { transform: translateX(8%); }
+}
+
+.fade-up { animation: fadeUp 0.3s ease; }
+
+.skel {
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--surface2) 25%, var(--border) 50%, var(--surface2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+/* Scrollbars, so dark mode does not get a bright gutter. */
+* { scrollbar-color: var(--border) transparent; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 6px; border: 2px solid transparent; background-clip: content-box; }
+::-webkit-scrollbar-thumb:hover { background: var(--faint); background-clip: content-box; }
+
+/* ---- Drive-through transition, played once after a successful sign-in ---- */
+
+.drive-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  overflow: hidden;
+  background: linear-gradient(150deg, #1b2430 0%, #232e3d 45%, #3a1c24 100%);
+  animation: fadeIn 0.18s ease both;
+  /* Car width drives the ground line and the smoke, so they scale together. */
+  --car-w: min(360px, 54vw);
+  /* The artwork's ground sits 16.5% of the car's width below its centre. */
+  --ground: calc(var(--car-w) * 0.165);
+}
+
+/* blueprint grid, faded toward the edges */
+.drive-overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 28px 28px;
+  -webkit-mask-image: radial-gradient(120% 100% at 50% 50%, #000 40%, transparent 100%);
+  mask-image: radial-gradient(120% 100% at 50% 50%, #000 40%, transparent 100%);
+}
+
+.drive-road {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(50% + var(--ground));
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+}
+
+.drive-dashes {
+  position: absolute;
+  left: -20%;
+  right: -20%;
+  top: calc(50% + var(--ground) - 2px);
+  height: 3px;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.3) 0 34px,
+    transparent 34px 74px
+  );
+  animation: road-rush 0.45s linear infinite;
+}
+
+.drive-car {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: var(--car-w);
+  transform: translate3d(-60vw, -50%, 0);
+  animation: drive-across var(--drive-dur, 1500ms) cubic-bezier(0.45, 0.02, 0.4, 1) forwards;
+  will-change: transform;
+}
+
+/* Anchored to the exhaust pipe, so puffs leave from the right place. */
+.drive-smoke {
+  position: absolute;
+  left: 17%;
+  top: 66%;
+  width: 0;
+  height: 0;
+}
+
+.puff {
+  position: absolute;
+  width: calc(var(--car-w) * 0.094);
+  height: calc(var(--car-w) * 0.094);
+  margin: calc(var(--car-w) * -0.047) 0 0 calc(var(--car-w) * -0.047);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(236, 241, 247, 0.9) 0%,
+    rgba(203, 213, 225, 0.5) 45%,
+    rgba(203, 213, 225, 0) 72%
+  );
+  animation: puff 1000ms ease-out infinite;
+}
+
+.speed-line {
+  position: absolute;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: speed-line 700ms linear infinite;
+}
+
+.drive-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(50% + var(--ground) + 68px);
+  text-align: center;
+  color: #fff;
+  animation: fadeUp 0.5s ease 0.15s both;
+  padding: 0 24px;
+}
+
+.wheel-spin {
+  transform-box: view-box;
+  animation: wheel-spin 0.35s linear infinite;
+}
+
+@keyframes drive-across {
+  from { transform: translate3d(-60vw, -50%, 0); }
+  to   { transform: translate3d(125vw, -50%, 0); }
+}
+@keyframes wheel-spin { to { transform: rotate(360deg); } }
+@keyframes road-rush { to { transform: translateX(-74px); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes puff {
+  0%   { opacity: 0.9; transform: translate(0, 0) scale(0.28); }
+  35%  { opacity: 0.55; }
+  100% { opacity: 0; transform: translate(calc(var(--car-w) * -0.5), calc(var(--car-w) * -0.128)) scale(2.9); }
+}
+@keyframes speed-line {
+  from { transform: translateX(55vw); opacity: 0; }
+  25%  { opacity: 0.8; }
+  to   { transform: translateX(-85vw); opacity: 0; }
+}
+
+/* ---- Slice transition: the car cuts the sign-in screen in half ---- */
+
+.slice-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  overflow: hidden;
+  background: var(--bg);
+  --car-w: min(360px, 54vw);
+  --ground: calc(var(--car-w) * 0.165);
+}
+
+/* Sits behind the two halves and shows through as they part. */
+.slice-reveal {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(70% 50% at 50% 50%, var(--red-bg), transparent 70%),
+    var(--bg);
+}
+
+/* Appears in the gap once the halves have opened far enough to show it. */
+.slice-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text);
+  opacity: 0;
+  animation: fadeUp 0.45s ease calc(var(--slice-dur, 1600ms) * 0.56) both;
+}
+
+.slice-mark {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--red);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 15px;
+  box-shadow: 0 6px 18px rgba(196, 41, 58, 0.45);
+}
+
+/* Each half is one continuous piece, hinged at the right edge of the seam.
+   Rotating about that point opens a wedge that is widest on the left and still
+   sealed on the right — the page unzips behind the car as it drives right,
+   rather than tearing into separate columns. */
+.slice-half {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  will-change: transform;
+  backface-visibility: hidden;
+  transform-origin: 100% 50%;
+}
+
+.slice-top {
+  clip-path: inset(0 0 50% 0);
+  animation: zip-open-top var(--slice-dur, 1600ms) cubic-bezier(0.45, 0, 0.35, 1) forwards;
+}
+.slice-bottom {
+  clip-path: inset(50% 0 0 0);
+  animation: zip-open-bottom var(--slice-dur, 1600ms) cubic-bezier(0.45, 0, 0.35, 1) forwards;
+}
+
+/* Hold shut until the car arrives, peel open on its hinge, then lift away. */
+@keyframes zip-open-top {
+  0%, 12% { transform: rotate(0deg) translate3d(0, 0, 0); }
+  58%     { transform: rotate(-3.4deg) translate3d(0, -3vh, 0); }
+  100%    { transform: rotate(-7deg) translate3d(0, -105dvh, 0); }
+}
+@keyframes zip-open-bottom {
+  0%, 12% { transform: rotate(0deg) translate3d(0, 0, 0); }
+  58%     { transform: rotate(3.4deg) translate3d(0, 3vh, 0); }
+  100%    { transform: rotate(7deg) translate3d(0, 105dvh, 0); }
+}
+
+.slice-flash {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2px;
+  margin-top: -1px;
+  z-index: 2;
+  background: linear-gradient(90deg, transparent, #fff, rgba(255, 255, 255, 0.6), transparent);
+  transform: scaleX(0);
+  transform-origin: left center;
+  opacity: 0;
+  animation: slice-flash var(--slice-dur, 1600ms) ease-out forwards;
+}
+
+/* The car rides the seam, above both halves. */
+.slice-car {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  z-index: 3;
+  width: var(--car-w);
+  transform: translate3d(-60vw, calc(-50% - var(--ground)), 0);
+  animation: slice-drive var(--slice-dur, 1600ms) cubic-bezier(0.35, 0.1, 0.5, 1) forwards;
+  will-change: transform;
+}
+
+@keyframes slice-drive {
+  from { transform: translate3d(-60vw, calc(-50% - var(--ground)), 0); }
+  to   { transform: translate3d(125vw, calc(-50% - var(--ground)), 0); }
+}
+
+@keyframes slice-flash {
+  0%   { transform: scaleX(0); opacity: 0; }
+  10%  { opacity: 1; }
+  26%  { transform: scaleX(1); opacity: 0.9; }
+  42%  { transform: scaleX(1); opacity: 0; }
+  100% { transform: scaleX(1); opacity: 0; }
+}
+
+/* Reduced motion: no cutting, just a quick fade to the app. */
+@media (prefers-reduced-motion: reduce) {
+  .slice-top, .slice-bottom, .slice-car, .slice-flash { animation: none !important; }
+  .slice-half { opacity: 0; }
+  .slice-car { display: none; }
+}
+
+/* Anyone who asked for less motion gets a plain fade instead of the drive. */
+@media (prefers-reduced-motion: reduce) {
+  .drive-car, .drive-dashes, .speed-line, .puff, .wheel-spin { animation: none !important; }
+  .drive-car { transform: translate3d(50vw, -50%, 0); left: -180px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Printing a bill.
+
+   The invoice is rendered off-screen while working and becomes the only thing
+   on the page when printing, so "Print" and "Save as PDF" both produce a clean
+   A4 document with no app chrome. Colours are forced to black on white —
+   printing the dark theme would waste ink and read badly.
+--------------------------------------------------------------------------- */
+.print-only { display: none; }
+
+@media print {
+  @page { size: A4; margin: 12mm; }
+
+  html, body {
+    background: #fff !important;
+    height: auto !important;
+  }
+
+  /* Hide every part of the app rather than relying on each wrapper opting
+     out — the sidebar, header and any overlay all disappear this way. */
+  body * { visibility: hidden !important; }
+  .print-only, .print-only * { visibility: visible !important; }
+  .no-print { display: none !important; }
+
+  .print-only {
+    display: block !important;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    width: auto;
+    margin: 0;
+    padding: 0;
+    color: #000;
+    background: #fff;
+    font-size: 11px;
+  }
+
+  .print-only * {
+    color: #000 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .invoice-sheet { width: 100%; }
+  .invoice-sheet table { width: 100%; border-collapse: collapse; }
+  .invoice-sheet th,
+  .invoice-sheet td { border: 1px solid #000; padding: 4px 6px; }
+  .invoice-sheet thead { display: table-header-group; }  /* repeat on page 2+ */
+  .invoice-sheet tr { break-inside: avoid; }
+}

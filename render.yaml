@@ -1,0 +1,26 @@
+# Render blueprint for the Parts Price Intelligence API.
+#
+# The database is not declared here: the catalog already lives in Neon, so
+# DATABASE_URL is pasted in from the Neon dashboard rather than provisioned.
+services:
+  - type: web
+    name: price-intelligence-api
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm ci
+    startCommand: npm start
+    # Boot loads the whole catalog from Neon before listening, so Render must
+    # wait for this to answer before it routes traffic to a new deploy.
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        # Generated once by Render and kept across deploys. Rotating it signs
+        # everyone out, which is the intended effect.
+        generateValue: true
+      - key: DATABASE_URL
+        # Set in the dashboard — the same Neon connection string backend/.env
+        # uses locally. sync:false keeps the secret out of the repo.
+        sync: false

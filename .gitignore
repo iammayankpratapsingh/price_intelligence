@@ -1,0 +1,8 @@
+.neon
+node_modules/
+.env.local
+.DS_Store
+
+# The source workbook stays local: the API boots from Neon, and seeding is a
+# local step. Keeps real pricing out of the repo.
+data/

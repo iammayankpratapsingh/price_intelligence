@@ -1,0 +1,31 @@
+{
+  "name": "price-intelligence-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Parts Price Intelligence API - reads MRP price lists from Excel",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "seed": "node scripts/seed.js",
+    "user:create": "node scripts/create-user.js",
+    "clear": "node scripts/clear.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^17.4.2",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "pg": "^8.23.0",
+    "xlsx": "^0.18.5"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
