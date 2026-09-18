@@ -24,3 +24,18 @@ services:
         # Set in the dashboard — the same Neon connection string backend/.env
         # uses locally. sync:false keeps the secret out of the repo.
         sync: false
+
+  # The frontend is a Vite build — plain static files, no server runtime.
+  - type: web
+    name: price-intelligence-web
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    routes:
+      # React Router owns the routing client-side, so every path must return
+      # index.html. Without this, refreshing /search or /analytics 404s.
+      # Real files under /assets are served before this rule is considered.
+      - type: rewrite
+        source: /*
+        destination: /index.html
