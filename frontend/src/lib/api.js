@@ -1,14 +1,21 @@
+/** The deployed API. Production builds talk to this unless overridden. */
+const PROD_API = 'https://price-intelligence-api-j9jb.onrender.com';
+
 /**
  * Where the API lives.
  *
- * Empty (the default) keeps every request same-origin — which is what the Vite
- * dev proxy and a Vercel rewrite both rely on. Set VITE_API_URL at build time
- * to point a deployed frontend straight at a backend on another host, e.g.
- *   VITE_API_URL=https://price-intelligence-api.onrender.com
- * Auth travels in the Authorization header rather than a cookie, so a
- * cross-origin base needs nothing from the browser beyond the server's CORS.
+ * Dev resolves to an empty base, so requests stay same-origin and the Vite
+ * proxy in vite.config.js forwards them to the local server on :4000 — running
+ * `npm run dev` never touches production. A production build points at
+ * PROD_API instead. VITE_API_URL overrides either, and setting it to an empty
+ * string forces same-origin, which is what a Vercel rewrite would want.
+ *
+ * Auth travels in the Authorization header rather than a cookie, so the
+ * cross-origin case needs nothing from the browser beyond the server's CORS.
  */
-export const API_BASE = `${(import.meta.env.VITE_API_URL || '').replace(/\/+$/, '')}/api`;
+const RAW_BASE = import.meta.env.VITE_API_URL ?? (import.meta.env.PROD ? PROD_API : '');
+
+export const API_BASE = `${RAW_BASE.replace(/\/+$/, '')}/api`;
 
 const TOKEN_KEY = 'pi.token';
 const USER_KEY = 'pi.user';
